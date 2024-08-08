@@ -1,0 +1,98 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    
+    
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+    <title>Home</title>
+  </head>
+  
+  <body>
+    <header>
+        <nav class="navbar">
+            <a href="{% url 'home' %}" class="logo">Profile</a>
+                <a class="profile-icon-link-container" href="{% url 'profile' %}">
+                    <img src="{% static 'images/default.svg' %}" alt="profile-icon">
+                    <span class="header-username">Hello, {{user}}</span>
+                </a>
+        </nav>
+    </header>
+
+    {% if messages %}
+    <div class="notification-container">
+        <div class="notification">
+            {% for message in messages %}
+            <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+            <img id='cross' src="{% static 'images/close.png' %}" width="15px" height="15px" alt="">
+        </div>
+    </div>
+    <script>
+        var cross = document.getElementById('cross')
+        cross.addEventListener('click', ()=> {
+            document.getElementsByClassName('notification-container')[0].style.display = 'none';
+        })
+    </script>
+    {% endif %}
+
+
+    <main class="main-container">
+        <div class="container col-lg-8">
+            <canvas id="myChart"></canvas>
+            <script>
+                var endpoint = '../graph/data'
+                var defaultData = []
+                var labels = []
+                $.ajax({
+                    method:'GET',
+                    url:endpoint,
+                    success: function(data){
+                        defaultData=data.default
+                        labels=data.labels
+                        console.log(data)
+                        setChart();
+                    },
+                    error: function(error_data){
+                        console.log("error")
+                        console.log(error_data)
+                    }
+                })
+                
+                function setChart(){
+                    const ctx = document.getElementById('myChart');
+              
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                            label: '# of Votes',
+                            data: defaultData,
+                            borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                            }
+                        }
+                    });
+                }
+              </script>
+        </div>
+    </main>
+  </body>
+</html>
